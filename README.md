@@ -38,11 +38,11 @@ reducing bias in the workplace, we address the following key research questions:
 - **Setup**: Compare blind hiring (early-stage) with quotas and anti-bias training (late-stage).
 - **Metrics**: Gender imbalance, time to equilibrium, fairness vs. efficiency trade-offs.
 
-### **Experiment 2**: How Effective are Current Anti-Bias Measures (Quotas, Rooney Rule, and Blind Hiring)
+### **Question 2**: How Effective are Current Anti-Bias Measures (Quotas, Rooney Rule, and Blind Hiring)
 - **Setup**: Evaluate each intervention individually and in combination.
 - **Metrics**: Reduction in gender imbalance, fairness vs. efficiency, and time to equilibrium.
 
-### **Experiment 3**: What is the Long-Term Impact of Anti-Bias Training
+### **Question 3**: What is the Long-Term Impact of Anti-Bias Training
 - **Setup**: Simulate bias decay over time with varying training frequencies and decay rates.
 - **Metrics**: Sustainability of bias reduction, gender balance, and equilibrium time.
 
