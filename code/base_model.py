@@ -1,34 +1,39 @@
 from model import Model
-from constants import RNG, MATERNITY_RETURN, MATERNITY_BIAS
+from constants import *
+from base_functions import *
 
 class BaseModel(Model):
     def __init__(
             self, 
-            leave_rate,
-            maternity_leave_rate,
-            quit_func,
-            fire_func,
-            bias_func,
-            identities, 
-            identity_probabilities, 
-            promotion_probability_func, 
-            next_id=0, 
-            num_levels=4, 
-            level_populations=[50, 25, 10, 5]
+            leave_rate=LEAVE_RATE,
+            maternity_leave_rate=MATERNITY_LEAVE,
+            identities=IDENTITIES,
+            quit_func=base_quit_func,
+            fire_func=base_fire_func,
+            bias_func=base_bias_func,
+            identity_probabilities_func=base_hire_func, 
+            promotion_probability_func=base_promotion_func, 
+            num_levels=NUM_LEVELS, 
+            level_populations=LEVEL_POPULATIONS,
+            population_percentages=IDENTITY_POPULATION_PERCENTAGES,
+            quotas=None
             ):
         self.leave_rate = leave_rate
         self.maternity_leave_rate = maternity_leave_rate
+
         self.quit_func = quit_func
         self.fire_func = fire_func
         self.bias_func = bias_func
-
-        self.identities = identities
-        self.identity_probabilities = identity_probabilities
-        self.num_levels = num_levels
-        self.level_populations = level_populations
+        self.identity_probabilities_func = identity_probabilities_func
         self.promotion_probability_func = promotion_probability_func
 
-        self.next_id = next_id
+        self.identities = identities
+        self.num_levels = num_levels
+        self.level_populations = level_populations
+        self.population_percentages = population_percentages
+        self.quotas = quotas
+
+        self.next_id = sum(level_populations)
         self.all_employees = []
         self.time = 0
         self.log = []
@@ -74,14 +79,26 @@ class BaseModel(Model):
     def hire(self, state):
         new_id = self.next_id
         self.next_id += 1
-        new_employee = state.hire_employee(new_id, self.identities, self.identity_probabilities) # Consider coming up with different ways to assign performance levels
+        identity_probabilities = self.identity_probabilities_func(state, self.identities, self.population_percentages)
+        new_employee = state.hire_employee(new_id, self.identities, identity_probabilities) # Consider coming up with different ways to assign performance levels
         return [(new_employee, 0)]
 
     def promote(self, state, level, event_details=[]):
         if level < 1:
             raise ValueError("Cannot promote to lowest level.")
         
-        promotable_employees = [e for e in state.employees if e.position_level is not None and e.position_level == level-1]
+        must_promote_identity = None
+        if self.quotas is not None:
+            for identity in self.identities:
+                if state.get_count(level, identity) < self.quotas[level]:
+                    must_promote_identity = identity
+                    break
+        promotable_employees = [
+            e for e in state.employees
+            if e.position_level is not None
+            and e.position_level == level - 1
+            and (must_promote_identity is None or e.identity == must_promote_identity)
+        ]
         if not promotable_employees:
             return None
 

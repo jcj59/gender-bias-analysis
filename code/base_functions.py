@@ -1,5 +1,5 @@
 from utils import probabilities_from_weights
-from constants import PERFORMACE_LEVEL_WEIGHT, POSITION_EXPERIENCE_WEIGHT, IDENTITY_SIMILARITY_WEIGHT, MAN_BIAS, WOMAN_BIAS, LEVEL_BIAS_COEFFICIENT
+from constants import *
 
 def base_fire_func(state):
     """
@@ -12,7 +12,7 @@ def base_fire_func(state):
     for i, employee in enumerate(employees):
         fire_weights[i] = employee.performance_level
     fire_rate = sum(fire_weights)
-    return fire_rate, probabilities_from_weights(fire_weights)
+    return fire_rate * FIRE_RATE_COEFFICIENT, probabilities_from_weights(fire_weights)
 
 def base_quit_func(state):
     """
@@ -27,7 +27,7 @@ def base_quit_func(state):
     quit_rate = sum(bias_weights)
     return quit_rate, probabilities_from_weights(bias_weights)
 
-def promotion_probability_func(state, employees, level, identities):
+def base_promotion_func(state, employees, level, identities):
     """
     Provides probabilities of employees being promoted based on their performance levels, seniority, and identity similarity.
     """
@@ -65,3 +65,43 @@ def base_bias_func(employee):
     level_bias = LEVEL_BIAS_COEFFICIENT * (employee.position_level + 1)
     total_bias = identity_bias_score * level_bias 
     return total_bias
+
+# def base_hire_func(state, identities):
+#     identity_weights = {identity: 0 for identity in identities}
+#     for employee in state.employees:
+#         identity_weights[employee.identity] += 1
+
+#     total_count = sum(identity_weights.values())
+#     identity_probabilities = [identity_weights[identity] / total_count for identity in identities]
+#     print(identity_probabilities)
+#     return identity_probabilities
+
+def base_hire_func(state, identities, population_percentages):
+    identity_counts = {identity: 0 for identity in identities}
+    for employee in state.employees:
+        identity_counts[employee.identity] += 1
+    total_employees = sum(identity_counts.values())
+
+    if total_employees == 0:
+        # If no employees at level 0, fallback to uniform percentages
+        company_probabilities = {identity : 1 / len(identities) for identity in identities}
+    else:
+        company_probabilities = {
+            identity : identity_counts[identity] / total_employees for identity in identities
+        }
+
+    hiring_probabilities = []
+    for identity in identities:
+        global_percentage = population_percentages.get(identity, 0)
+        company_percentage = company_probabilities.get(identity, 0)
+        blended_probability = (
+            (1 - HIRING_HOMOPHILY_WEIGHT) * global_percentage + HIRING_HOMOPHILY_WEIGHT * company_percentage
+        )
+        hiring_probabilities.append(blended_probability)
+
+    total_probability = sum(hiring_probabilities)
+    if total_probability > 0:
+        hiring_probabilities = [p / total_probability for p in hiring_probabilities]
+
+    return hiring_probabilities
+

@@ -15,8 +15,6 @@ def probabilities_from_weights(weights):
     # Ensure sum is exactly 1 by correcting the final element
     probabilities[-1] += 1.0 - np.sum(probabilities)
     
-    # Convert to Python float type
-    # probabilities = probabilities.tolist()  # Ensures each element is a Python float
     return probabilities
 
 

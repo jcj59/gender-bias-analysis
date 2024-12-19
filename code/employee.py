@@ -1,4 +1,4 @@
-from constants import RNG, PERFORMANCE_INCREASE_RATE, PERFORMANCE_DECREASE_RATE
+from constants import *
 
 class Employee:
     def __init__(self, id, identity, performance_level, position_level, time):
@@ -36,7 +36,7 @@ class Employee:
         self.company_experience += delta_t
 
     def update_bias(self, bias, delta_t):
-        self.bias_score += bias * delta_t
+        self.bias_score += bias * delta_t * BIAS_RATE_COEFFICIENT
 
     def __str__(self):
         return (

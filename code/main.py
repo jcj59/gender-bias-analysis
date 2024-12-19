@@ -1,7 +1,8 @@
 from base_model import BaseModel
 from state import State
-from probability_functions import base_quit_func, base_fire_func, promotion_probability_func, base_bias_func
-from constants import MATERNITY_LEAVE
+from base_functions import *
+from interventions import *
+from constants import *
 
 def main(num_steps=100):
     # Define parameters
@@ -12,14 +13,18 @@ def main(num_steps=100):
 
     # Define the model
     model = BaseModel(
-        leave_rate=leave_rate,
+        leave_rate=LEAVE_RATE,
         maternity_leave_rate=MATERNITY_LEAVE,
+        identities=IDENTITIES,
         quit_func=base_quit_func,
         fire_func=base_fire_func,
         bias_func=base_bias_func,
-        identities=identities,
-        identity_probabilities=identity_probabilities,
-        promotion_probability_func=promotion_probability_func,
+        identity_probabilities_func=base_hire_func, 
+        promotion_probability_func=base_promotion_func, 
+        num_levels=NUM_LEVELS, 
+        level_populations=LEVEL_POPULATIONS,
+        population_percentages=IDENTITY_POPULATION_PERCENTAGES,
+        quotas=None
     )
 
     # Define the initial state
