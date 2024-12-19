@@ -1,52 +1,46 @@
-from dataclasses import dataclass
-
-import numpy as np
+from abc import ABC, abstractmethod
+from constants import RNG
+from copy import deepcopy
 import matplotlib.pyplot as plt
 
-# your additional imports here
-from dataclasses import field
-from typing import Dict, List
-
-RNG = np.random.default_rng()
-
-class Model:
+class Model(ABC):
+    @abstractmethod
     def transition_rate(self, state):
-        """Total transition rate out of the given state"""
         raise NotImplementedError
 
+    @abstractmethod
     def sample_next(self, state):
-        """Generates a random state to come after the given state"""
         raise NotImplementedError
     
-@dataclass
-class QueueModel(Model):
-    """Model of a queue
-
-    The state is the number of customers currently in the queue.
-
-    Parameters
-    ----------
-    rate_arrival: float
-        Rate at which customers arrive at the queue.
-
-    rate_service: float
-        Rate at which customers leave the queue when it is nonempty.
-    """
-
-    rate_arrival: float
-    rate_service: float
-
-    def transition_rate(self, state: int):
-        if state == 0:
-            return self.rate_arrival
-        else:
-            return self.rate_arrival + self.rate_service
-
-    def sample_next(self, state: int):
-        if RNG.random() < self.rate_arrival / self.transition_rate(state):
-            return state + 1
-        else:
-            return state - 1
+    @abstractmethod
+    def hire(self, state):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def promote(self, state, level):
+        raise NotImplementedError
+    
+    def run(self, state_init, n_steps=256, log_interval=10):
+        self.time = 0.0
+        path = [(self.time, deepcopy(state_init))]
+        last_logged_time = 0  # Tracks the last logged time for intervals
         
-def visualize_queue_path(path):
-    plt.plot(*np.asarray(path).T)
+        while self.time <= n_steps:
+            current_state = path[-1][1]
+            rate = self.transition_rate(current_state)
+            time_delta = RNG.exponential(1 / rate)
+            self.time += time_delta
+
+            # Log the current time at regular intervals
+            if self.time >= last_logged_time + log_interval:
+                print(f"Simulation time: {self.time:.2f}")
+                last_logged_time = self.time
+
+            next_state = self.sample_next(current_state, time_delta)
+            path.append((self.time, deepcopy(next_state)))
+
+        # Return a list of (time, state) pairs
+        return path
+
+    
+

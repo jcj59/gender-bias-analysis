@@ -15,9 +15,7 @@ The simulation models the following factors that influence workplace dynamics:
 - **Seniority**: Models career progression based on experience and tenure.
 - **Performance Measures**: Accounts for bias in performance evaluations and their effects on promotions.
 - **Homophily in Hiring and Promotion**: Simulates a preference for candidates of similar identities (e.g., same gender).
-- **Networking**: Captures the impact of professional networks on promotion opportunities.
 - **Departure Rates**: Models varying departure rates based on factors like parental leave and systemic bias.
-<!-- - **Pay Gaps**: Includes salary disparities and their effect on retention. -->
 - **Intersectionality**: Examines compounded biases faced by women of color and other intersecting identities.
 - **Disengagement Rate**: Models how systemic bias affects employee retention.
 
