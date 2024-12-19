@@ -4,7 +4,7 @@ class Employee:
     def __init__(self, id, identity, performance_level, position_level, time):
         self.id = id
         self.identity = identity
-        self.performance_level = performance_level
+        self.performance_level = max(0, min(1, performance_level))
         self.position_level = position_level
         self.start_time = time
         self.end_time = None
@@ -26,16 +26,17 @@ class Employee:
         self.position_experience = 0
         self.position_level = None
 
-    def update_performance(self):
-        self.performance_level += self.position_experience * PERFORMANCE_INCREASE_RATE - self.bias_score * PERFORMANCE_DECREASE_RATE
+    def update_performance(self, delta_t):
+        self.performance_level += delta_t * (self.position_experience * PERFORMANCE_INCREASE_RATE - self.bias_score * PERFORMANCE_DECREASE_RATE)
+        self.performance_level = max(0, min(1, self.performance_level))
         self.performance_history.append(self.performance_level)
 
     def update_experience(self, delta_t):
         self.position_experience += delta_t
         self.company_experience += delta_t
 
-    def update_bias(self, bias):
-        self.bias_score += bias
+    def update_bias(self, bias, delta_t):
+        self.bias_score += bias * delta_t
 
     def __str__(self):
         return (

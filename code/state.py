@@ -7,12 +7,12 @@ class State:
         self.employee_ids = [employee.id for employee in employees]
         self.time = time
 
-    def update(self, delta_t):
+    def update(self, delta_t, bias_func):
         self.time += delta_t
         for employee in self.employees:
             employee.update_experience(delta_t)
-            employee.update_performance()
-            # Update bias somehow
+            employee.update_performance(delta_t)
+            employee.update_bias((bias_func(employee)), delta_t)
 
     def add_employee(self, employee):
         self.employees.append(employee)

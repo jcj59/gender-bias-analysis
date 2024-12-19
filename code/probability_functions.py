@@ -1,5 +1,5 @@
 from utils import probabilities_from_weights
-from constants import PERFORMACE_LEVEL_WEIGHT, POSITION_EXPERIENCE_WEIGHT, IDENTITY_SIMILARITY_WEIGHT
+from constants import PERFORMACE_LEVEL_WEIGHT, POSITION_EXPERIENCE_WEIGHT, IDENTITY_SIMILARITY_WEIGHT, MAN_BIAS, WOMAN_BIAS, LEVEL_BIAS_COEFFICIENT
 
 def base_fire_func(state):
     """
@@ -14,7 +14,7 @@ def base_fire_func(state):
     fire_rate = sum(fire_weights)
     return fire_rate, probabilities_from_weights(fire_weights)
 
-def base_bias_func(state):
+def base_quit_func(state):
     """
     Provides probabilities of employees quitting based on their bias scores.
     """
@@ -53,3 +53,15 @@ def promotion_probability_func(state, employees, level, identities):
         )
 
     return probabilities_from_weights(promotion_weights)
+
+def base_bias_func(employee):
+    identity_bias = {
+        "M": MAN_BIAS,  
+        "F": WOMAN_BIAS,  
+    }
+    identity_bias_score = identity_bias.get(employee.identity, 0)
+    
+    # Add bias based on position level (e.g., more bias at higher levels)
+    level_bias = LEVEL_BIAS_COEFFICIENT * (employee.position_level + 1)
+    total_bias = identity_bias_score * level_bias 
+    return total_bias
